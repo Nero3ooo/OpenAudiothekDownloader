@@ -1,4 +1,4 @@
-## Lightweight Ard-Audiothek-Downloader
+## Lightweight ARD-Audiothek-Downloader
 
 Es handelt sich um ein Python Script, welches Hörbücher und Podcasts von der ARD-Audiothek herunterladen kann. 
 
