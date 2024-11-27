@@ -1,8 +1,8 @@
-## Lightweight ARD-Audiothek-Downloader
+# Lightweight ARD-Audiothek-Downloader
 
 Es handelt sich um ein Python Script, welches Hörbücher und Podcasts von der ARD-Audiothek herunterladen kann. 
 
-### Vorraussetzungen
+## Vorraussetzungen
 
 Python3
 
@@ -23,9 +23,9 @@ wget:
 pip install wget
 ```
 
-### Nutzung
+## Nutzung
 
-#### Über die erste Folge
+### Über die erste Folge
 
 Um einen Podcast oder ein Hörbuch herunterzuladen, muss der Link der ersten Folge kopiert und an das Script übergeben werden.
 Anschließend werden alle weiteren Episoden heruntergeladen, sofern sie in der Audiothek als nächste Episode verlinkt sind.
@@ -35,7 +35,7 @@ Beispiel für [Die Märchen der Brüder Grimm](https://www.ardaudiothek.de/episo
 python audioDownloader.py https://www.ardaudiothek.de/episode/die-maerchen-der-brueder-grimm/das-maerchen-der-brueder-grimm-01-der-raeuberbraeutigam/ard/89322458/
 ```
 
-#### Über die Folgenübersicht
+### Über die Folgenübersicht
 
 <b>Die Variante funktioniert bisher nicht vollständig!</b>
 
