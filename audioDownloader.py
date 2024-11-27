@@ -50,6 +50,7 @@ def loadEpisode(path):
         filename = filename.replace(':',' -')
         filename = filename.replace('\t',' ')
         filename = filename.replace('|','-')
+        filename = filename.replace('–', '-')
         filename = filename + '.mp3'
 
         # get folder names
@@ -58,7 +59,8 @@ def loadEpisode(path):
         title = title.replace('/', '')
         title = title.replace(': ', '-')
         title = title.replace(' – ', '-')
-        title = title.replace(' |  ', '-')
+        title = title.replace(' - ', '-')
+        title = title.replace(' | ', '-')
         title = title.split('-')
 
         print(filename)
@@ -70,7 +72,7 @@ def loadEpisode(path):
         # Create folder structure
         if len(title) == 1:
             filename = os.path.join(cwd, title[0], filename)
-        if len(title) == 2:
+        if len(title) >= 2:
             filename = os.path.join(cwd, title[0], title[1], filename)
         
         os.makedirs(os.path.dirname(filename), exist_ok=True)
