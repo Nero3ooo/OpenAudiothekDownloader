@@ -1,0 +1,9 @@
+services:
+  app:
+    image: nero3000/open-audiothek-downloader
+    ports:
+      - 5000:5000
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - /media/pool/audiobookshelf/audiobooks:/audiobooks

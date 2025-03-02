@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+      <link rel="icon" href="{{url_for('static', filename='icons/icon_144x144.png')}}" type="image/png">
+  <link rel="icon" href="{{url_for('static', filename='icons/icon_192x192.png')}}" type="image/png">
+  <link rel="icon" href="{{url_for('static', filename='icons/icon_512x512.png')}}" type="image/png">
+  <link rel="apple-touch-icon" href="{{url_for('static', filename='icons/icon_144x144.png')}}" type="image/png">
+  <link rel="apple-touch-icon" href="{{url_for('static', filename='icons/icon_192x192.png')}}" type="image/png">
+  <link rel="apple-touch-icon" href="{{url_for('static', filename='icons/icon_512x512.png')}}" type="image/png">
+  <link rel="manifest" href="/manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register("/sw.js").then(function(registration) {
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, function(err) {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+      });
+    }
+  </script>
+  <title>OpenAudiothekDownloader</title>
+</head>
+<body>
+
+<div class="toggle-container">
+  <div class="toggle" id="toggle"></div>
+</div>
+
+    <div class="container">
+        <h1>OpenAudiothekDownloader</h1>
+        <div class="form">
+            <input type="text" id="url" placeholder="Shared Url"/>
+            <button type="submit" id="post">Download</button>
+            <p id="result"><br></p>
+        </div>
+    </div>
+<script>
+  const toggle = document.getElementById("toggle");
+  // Check and apply the mode preference before the page loads
+  const savedMode = localStorage.getItem('mode');
+  if (savedMode === 'dark') {
+    document.body.classList.add('dark-mode');
+  } else {
+    toggle.classList.add("checked");
+  }
+
+  // Toggle between dark and light modes and save preference
+  function toggleMode() {
+    const htmlElement = document.body;
+    htmlElement.classList.toggle('dark-mode');
+    toggle.classList.toggle("checked");
+    const currentMode = htmlElement.classList.contains('dark-mode') ? 'dark' : 'light';
+    localStorage.setItem('mode', currentMode);      
+  }
+  toggle.addEventListener("click", () => {toggleMode()});
+</script>
+
+<script>
+  const postBtn = document.getElementById("post");
+  const urlInput = document.getElementById("url");
+
+  const postUrl = async () => {
+    document.getElementById("result").innerText = "loading...";
+    let value = document.getElementById("url").value;
+    let myBody = {"textfield": document.getElementById("url").value};
+
+    // rest api call
+    fetch('/execute', {
+      method: 'POST',
+      body: JSON.stringify(myBody), // string or object
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then ((response) => {
+      // extract json from response
+      return response.json();
+    }).then ((response) => {
+      // show response
+      document.getElementById("result").innerText = response["result"];
+      document.getElementById("url").value = '';
+    }).catch((error) => {
+      document.getElementById("result").innerText = "Server not reachable";
+    });
+  }
+
+  // add events for button and inputfield
+  postBtn.addEventListener("click", () => {postUrl()});
+  urlInput.addEventListener("keydown",
+  function(event) {
+    if (event.key === 'Enter') {
+        postUrl();
+    }
+  });
+</script>
+
+</body>
+</html>
