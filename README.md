@@ -1,48 +1,68 @@
 # Lightweight ARD-Audiothek-Downloader
 
-Es handelt sich um ein Python Script, welches Hörbücher und Podcasts von der ARD-Audiothek herunterladen kann. 
+Es handelt sich um eine kleine selfhosetd Web-App, welche Hörbücher und Podcasts von der ARD-Audiothek herunterladen kann. 
 
-## Vorraussetzungen
+## Vorraussetzungen / Installation
 
-Python3
+Installation von Docker:
 
-Zusätzlich müssen folgende Bibliotheken installiert werden:
+__Windows:__
 
-Requests:
+1. Download und Installation von [Docker-Desktop](https://docs.docker.com/desktop/setup/install/windows-install/). Danach starten von Docker-Desktop.
+2. Anlegen einer neuen Textdatei unter zB. %userprofile%\Music\openAudiothekDownloader
+3. Inhalt der [compose.yaml](./compose.yaml) in die Textdatei einfügen und danach in compose.yaml umbenennen.
+4. Powershell öffnen: 
 ```
-pip install requests
+Tastenbefehl: Win+R
+POWERSHELL eingeben
+Enter drücken
+```
+Zu dem Ordner navigieren:
+```
+cd $env:USERPROFILE\MusicMusic\openAudiothekDownloader
+```
+5. Docker Compose mit der zuvor erstellten compose.yaml ausführen:
+```
+docker compose up -d --force-recreate
+```
+6. Im Browser den selbstgehosteten Service aufrufen:
+```
+http://localhost:5000/
+```
+7. Zum Beenden des Services:
+```
+docker compose down
 ```
 
-bs4:
+__Linux:__
+1. Installation von Docker-Compose zB über das Terminal:
 ```
-pip install bs4
-```
+apt-get install ca-certificates curl
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+chmod a+r /etc/apt/keyrings/docker.asc
 
-wget:
+echo   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
+$(. /etc/os-release && echo "$VERSION_CODENAME") stable" |   tee /etc/apt/sources.list.d/docker.list > /dev/null
+   
+apt-get update
+apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-compose
 ```
-pip install wget
+2. compose.yaml in neuem Ordner speichern.
+3. Docker Compose mit der zuvor erstellten compose.yaml ausführen:
+```
+docker compose up -d --force-recreate
+```
+4. Im Browser den selbstgehosteten Service aufrufen:
+```
+http://localhost:5000/
+```
+5. Zum Beenden des Services:
+```
+docker compose down
 ```
 
 ## Nutzung
-
-### Über die erste Folge
-
-Um einen Podcast oder ein Hörbuch herunterzuladen, muss der Link der ersten Folge kopiert und an das Script übergeben werden.
-Anschließend werden alle weiteren Episoden heruntergeladen, sofern sie in der Audiothek als nächste Episode verlinkt sind.
-
-Beispiel für [Die Märchen der Brüder Grimm](https://www.ardaudiothek.de/episode/die-maerchen-der-brueder-grimm/das-maerchen-der-brueder-grimm-01-der-raeuberbraeutigam/ard/89322458/)
-```
-python audioDownloader.py https://www.ardaudiothek.de/episode/die-maerchen-der-brueder-grimm/das-maerchen-der-brueder-grimm-01-der-raeuberbraeutigam/ard/89322458/
-```
-
-### Über die Folgenübersicht
-
-<b>Die Variante funktioniert bisher nicht vollständig!</b>
-
-Es können kleinere Hörbücher oder Podcasts auch über die Folgenübersicht heruntergeladen werden. Es werden allerdings nur die obersten 6 bis 8 Folgen heruntergeladen.
-
-Beispiel für [Die Märchen der Brüder Grimm](https://www.ardaudiothek.de/sendung/die-maerchen-der-brueder-grimm/75559248/)
-```
-python audioDownloader.py https://www.ardaudiothek.de/sendung/die-maerchen-der-brueder-grimm/75559248/
-```
-
+Link der ersten Folge einfügen und herunterladen.
+![alt text](./images/webfrontend.png)
+Die ausgewählte und kommende Folgen werden in das ausgewählte Verzeichnis heruntergeladen. 
