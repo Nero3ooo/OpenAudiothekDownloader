@@ -10,7 +10,7 @@ __Windows:__
 
 1. Download und Installation von [Docker-Desktop](https://docs.docker.com/desktop/setup/install/windows-install/). Danach starten von Docker-Desktop.
 2. Anlegen einer neuen Textdatei unter zB. %userprofile%\Music\openAudiothekDownloader
-3. Inhalt der [compose.yaml](./compose.yaml) in die Textdatei einfügen und danach in compose.yaml umbenennen.
+3. Inhalt der [compose.yaml](./compose.yaml) in die Textdatei einfügen, für Windows anpassen und danach in compose.yaml umbenennen.
 4. Powershell öffnen: 
 ```
 Tastenbefehl: Win+R
@@ -19,7 +19,7 @@ Enter drücken
 ```
 Zu dem Ordner navigieren:
 ```
-cd $env:USERPROFILE\MusicMusic\openAudiothekDownloader
+cd $env:USERPROFILE\Music\openAudiothekDownloader
 ```
 5. Docker Compose mit der zuvor erstellten compose.yaml ausführen:
 ```

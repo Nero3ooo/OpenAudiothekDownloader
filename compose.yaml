@@ -6,4 +6,5 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     volumes:
+      # - $env:USERPROFILE\Music\openAudiothekDownloader:/audiobooks
       - /media/pool/audiobookshelf/audiobooks:/audiobooks
