@@ -66,3 +66,6 @@ docker compose down
 Link der ersten Folge einfügen und herunterladen.
 ![alt text](./images/webfrontend.png)
 Die ausgewählte und kommende Folgen werden in das ausgewählte Verzeichnis heruntergeladen. 
+
+Alternativ Link der Serienübersicht einfügen und herunterladen.
+Hierbei werden allerdings häufig nicht alle Folgen erfasst und heruntergeladen.
