@@ -1,11 +1,3 @@
-"""
-first install the following libraries with pip:
-
-pip install requests
-pip install bs4
-pip install wget
-"""
-
 import os
 import requests
 from bs4 import BeautifulSoup
