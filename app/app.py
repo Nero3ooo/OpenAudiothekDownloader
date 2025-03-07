@@ -21,8 +21,8 @@ def serve_sw():
 def index(path):
     return render_template('index.html')
 
-@app.route('/execute', methods=['POST'])
-def execute():
+@app.route('/download-show', methods=['POST'])
+def downloadShow():
     url = json.loads(request.data)
     url = url['textfield']
     if(url == ''):
@@ -31,8 +31,22 @@ def execute():
     # Run the terminal command
     downloader = AudioDownloader(url)
     downloader.loadShow()
-    result = 'successfully Downloaded '
-    result = result + downloader.title
+    result = 'successfully downloaded show '
+    result = result + downloader.folder
+    return jsonify({'result': result})
+
+@app.route('/download-episode', methods=['POST'])
+def downloadEpisode():
+    url = json.loads(request.data)
+    url = url['textfield']
+    if(url == ''):
+        result = 'no url'
+        return jsonify({'result': result})
+    # Run the terminal command
+    downloader = AudioDownloader(url)
+    downloader.loadEpisode()
+    result = 'successfully downloaded episode '
+    result = result + downloader.folder
     return jsonify({'result': result})
 
 if __name__ == '__main__':

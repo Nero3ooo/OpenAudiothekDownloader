@@ -26,7 +26,7 @@ class AudioDownloader:
     dryRun = False
     url = ''
     path = ''
-    title = ''
+    folder = ''
 
     def __init__(self, uri):
         parsed_uri = urlparse(uri)
@@ -34,19 +34,23 @@ class AudioDownloader:
         self.path = parsed_uri.path
 
     def loadShow(self):
-        self.__loadEpisode(self.path)
+        self.__loadEpisode(self.path, True)
 
-    def __loadEpisode(self, path):
+    def loadEpisode(self):
+        self.__loadEpisode(self.path, False)
+
+    def __loadEpisode(self, path, recursive):
         url = self.url
+
         if not self.experimentalShow:
             r = requests.get(url+path)
-
+            logging.debug(url+path)
             soup = BeautifulSoup(r.content, 'html.parser')
 
             script = soup.find(id='__NEXT_DATA__')
             json_object = json.loads(script.contents[0])
-            # print(json.dumps(json_object, indent=4))
             data = json_object['props']['pageProps']['initialData']['data']
+            # logging.debug(json.dumps(data, indent=4))
 
             # load from first episode
             if 'item' in data:
@@ -54,8 +58,10 @@ class AudioDownloader:
 
                 # recursively download next episodes
                 next_episode = data['item']['nextEpisode']
-                if not next_episode is None:
-                    self.__loadEpisode(next_episode['path'])
+                logging.debug(json.dumps(next_episode, indent=4))
+
+                if (not next_episode is None and recursive):
+                    self.__loadEpisode(next_episode['path'], recursive)
             
             # load from series site, does not work for the whole series
             else:
@@ -111,49 +117,57 @@ class AudioDownloader:
                         self.downloadTitle(node)
 
     def downloadTitle(self, itemNode):
-            # get download link
-            link = itemNode['audios'][0]['url']
-            link = link + "?download=true"
+        # get download link
+        link = itemNode['audios'][0]['url']
+        link = link + "?download=true"
 
-            # get file name
-            filename = itemNode['title']
-            filename = filename.replace('"','')
-            filename = filename.replace('/','-')
-            filename = filename.replace(':',' -')
-            filename = filename.replace('\t',' ')
-            filename = filename.replace('|','-')
-            filename = filename.replace('–', '-')
-            filename = filename.replace('?', '')
-            filename = filename + '.mp3'
+        # get file name
+        filename = self.__getFilename(itemNode['title']) 
 
+        # set global folder, if not already set
+        if (self.folder == ''):
             # get folder names
-            title = itemNode['programSet']['title']
-            title = title.replace('"', '')
-            title = title.replace('/', '')
-            title = title.replace('?', '')
-            title = title.replace(': ', '-')
-            title = title.replace(' – ', '-')
-            title = title.replace(' - ', '-')
-            title = title.replace(' | ', '-')
-            if (self.title == ''):
-                self.title = title
-            title = title.split('-')
+            folder = self.__getFoldername(itemNode['programSet']['title'])
+            self.folder = folder
+        else:
+            folder = self.folder
+        
+        folder = folder.split('-')
 
-            logging.info(filename)
-            # print(link)
+        logging.info(filename)
+        # print(link)
 
-            # Get the current working directory (cwd)
-            # cwd = os.getcwd()
-            directory = "/audiobooks"
-            # Create folder structure
-            if len(title) == 1:
-                filename = os.path.join(directory, title[0], filename)
-            if len(title) >= 2:
-                filename = os.path.join(directory, title[0], title[1], filename)
-            
-            logging.info(filename)
-            os.makedirs(os.path.dirname(filename), exist_ok=True)
-            
-            # download episode
-            if not self.dryRun:
-                wget.download(link, filename)
+        # Get the current working directory (cwd)
+        # cwd = os.getcwd()
+        directory = "/audiobooks"
+        # Create folder structure
+        if len(folder) == 1:
+            filename = os.path.join(directory, folder[0], filename)
+        if len(folder) >= 2:
+            filename = os.path.join(directory, folder[0], folder[1], filename)
+        
+        logging.info(filename)
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        
+        # download episode
+        if not self.dryRun:
+            wget.download(link, filename)
+
+    def __getFilename(self, filename):
+        filename = filename.replace('"','')
+        filename = filename.replace('/','-')
+        filename = filename.replace(':',' -')
+        filename = filename.replace('\t',' ')
+        filename = filename.replace('|','-')
+        filename = filename.replace('–', '-')
+        filename = filename.replace('?', '')
+        return  filename + '.mp3'
+
+    def __getFoldername(self, folder):
+        folder = folder.replace('"', '')
+        folder = folder.replace('/', '')
+        folder = folder.replace('?', '')
+        folder = folder.replace(': ', '-')
+        folder = folder.replace(' – ', '-')
+        folder = folder.replace(' - ', '-')
+        return folder.replace(' | ', '-')
