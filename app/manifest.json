@@ -25,6 +25,14 @@
         "type": "image/png",
         "purpose": "any maskable"
       }
-    ]
+    ],
+    "share_target": {
+      "action": "/share-handler",
+      "method": "GET",
+      "params": {
+        "text": "description",
+        "url": "link"
+      }
+    }
   }
   

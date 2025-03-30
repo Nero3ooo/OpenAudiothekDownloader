@@ -98,6 +98,23 @@
         postUrl();
     }
   });
+
+  const url = new URL(document.location);
+  const sharedLink = url.searchParams.get("link");
+  let description = url.searchParams.get("description");
+  try {
+    if(sharedLink !== null){
+      new URL(sharedLink);
+      document.getElementById("url").value = sharedLink;
+    } else if(description !== null){
+      new URL(description);
+      document.getElementById("url").value = description;
+    }
+  } catch (_) {
+    document.getElementById("result").innerText = "Invalid URL";
+  }
+
+
 </script>
 
 </body>
