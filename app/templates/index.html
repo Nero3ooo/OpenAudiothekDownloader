@@ -22,7 +22,7 @@
       });
     }
   </script>
-  <title>OpenAudiothekDownloader</title>
+  <title>Open Audiothek Downloader</title>
 </head>
 <body>
 
@@ -31,11 +31,12 @@
 </div>
 
     <div class="container">
-        <h1>OpenAudiothekDownloader</h1>
+        <h1>OpenAudiothek Downloader</h1>
         <div class="form">
             <input type="text" id="url" placeholder="Shared Url"/>
             <button type="submit" id="download-show">Download Show</button>
             <button type="submit" id="download-episode">Download Episode</button>
+            <button type="submit" id="download-movie">Download Movie</button>
             <p id="result"><br></p>
         </div>
     </div>
@@ -63,6 +64,7 @@
 <script>
   const downloadShowBtn = document.getElementById("download-show");
   const downloadEpisodeBtn = document.getElementById("download-episode");
+  const downloadMovieBtn = document.getElementById("download-movie");
   const urlInput = document.getElementById("url");
 
   const postUrl = async (path) => {
@@ -92,6 +94,7 @@
   // add events for button and inputfield
   downloadShowBtn.addEventListener("click", () => {postUrl('download-show')});
   downloadEpisodeBtn.addEventListener("click", () => {postUrl('download-episode')});
+  downloadMovieBtn.addEventListener("click", () => {postUrl('download-movie')});
   urlInput.addEventListener("keydown",
   function(event) {
     if (event.key === 'Enter') {

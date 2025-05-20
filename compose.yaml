@@ -3,8 +3,11 @@ services:
     image: nero3000/open-audiothek-downloader
     ports:
       - 5000:5000
+    tty: true        # Enables terminal features
+    stdin_open: true # Keeps STDIN open
     environment:
       - PYTHONUNBUFFERED=1
     volumes:
       # - $env:USERPROFILE\Music\openAudiothekDownloader:/audiobooks
       - /media/pool/audiobookshelf/audiobooks:/audiobooks
+      - /media/pool/jellyfin/Movies:/movies

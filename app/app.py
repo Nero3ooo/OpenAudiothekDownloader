@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, send_file, jsonify
 import subprocess
 import requests
 from audioDownloader import AudioDownloader
+from movieDownloader import MovieDownloader
 
 app = Flask(__name__, static_folder='static', static_url_path="/static")
 
@@ -49,6 +50,20 @@ def downloadEpisode():
     result = 'successfully downloaded episode '
     result = result + downloader.folder
     return jsonify({'result': result})
+
+@app.route('/download-movie', methods=['POST'])
+def downloadMovie():
+    url = json.loads(request.data)
+    url = url['textfield']
+    if(url == ''):
+        result = 'no url'
+        return jsonify({'result': result})
+    # Run the terminal command
+    downloader = MovieDownloader(url)
+    downloader.loadMovie()
+    result = 'successfully downloaded movie '
+    result = result + downloader.folder
+    return jsonify({'result': result})  
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
