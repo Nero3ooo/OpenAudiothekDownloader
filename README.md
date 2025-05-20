@@ -1,6 +1,6 @@
 # Lightweight ARD-Audiothek-Downloader
 
-Es handelt sich um eine kleine selfhosetd Web-App, welche Hörbücher und Podcasts von der ARD-Audiothek herunterladen kann. 
+Es handelt sich um eine kleine selfhosetd Web-App, welche Hörbücher, Podcasts und Filme von der ARD-Audiothek/Mediathek herunterladen kann. 
 
 ## Vorraussetzungen / Installation
 
@@ -63,9 +63,30 @@ docker compose down
 ```
 
 ## Nutzung
-Link der ersten Folge einfügen und herunterladen.
+
 ![alt text](./images/webfrontend.png)
-Die ausgewählte und kommende Folgen werden in das ausgewählte Verzeichnis heruntergeladen. 
+### Download Show
+Link der ersten Folge einfügen.
+
+Die ausgewählte und kommende Folgen werden in das Verzeichnis heruntergeladen, welches in der compose.yml definiert wurde. 
 
 Alternativ Link der Serienübersicht einfügen und herunterladen.
 Hierbei werden allerdings häufig nicht alle Folgen erfasst und heruntergeladen.
+
+### Download Episode
+
+Nur die Episode dessen Link eingefügt wurde, wird heruntergeladen.
+
+### Download Movie
+
+Filme oder andere Dateien werden in dem anderen zuvor definierten Verzeichnis heruntergeladen. 
+Hierzu wird [yt-dlp](https://github.com/yt-dlp/yt-dlp) verwendet.
+
+
+## Installation als App (für Fortgeschrittene)
+Zur Installation als PWA ist es notwendig, dass die App auf einem Server installiert wird, welcher über HTTPS erreichbar ist.
+
+Die App kann über Chrome als PWA installiert werden, indem die URL aufgerufen wird und über das Chrome-Menü zum Startbildschirm hinzugefügt wird.
+
+Wenn die App erfolgreich installiert wurde, ist es möglich in der Audiothek oder Mediathek eine Episode oder einen Film zu Teilen und dann den OpenAudiothekDownloader auszuwählen. Der Link sollte dann automatisch im Textfeld erscheinen.
+
