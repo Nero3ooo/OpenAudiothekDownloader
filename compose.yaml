@@ -8,6 +8,9 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     volumes:
+      # Uncomment the following lines for Windows users
       # - $env:USERPROFILE\Music\openAudiothekDownloader:/audiobooks
+      # - $env:USERPROFILE\Videos\openAudiothekDownloader:/movies
+      # Uncomment the following lines for Linux users
       - /media/pool/audiobookshelf/audiobooks:/audiobooks
       - /media/pool/jellyfin/Movies:/movies
