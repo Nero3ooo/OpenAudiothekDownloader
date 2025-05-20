@@ -56,7 +56,7 @@ class MovieDownloader:
             with YoutubeDL(ydl_opts) as ydl:
                 ydl.download([self.url])
             logging.info(f"Movie downloaded successfully to {self.folder}")
-            return "Download finished successfully."
+            return True
         except Exception as e:
             logging.error(f"Error downloading movie: {str(e)}")
-            return f"Download error: {str(e)}"
+            return f"Download error: {e}"

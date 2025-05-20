@@ -60,9 +60,10 @@ def downloadMovie():
         return jsonify({'result': result})
     # Run the terminal command
     downloader = MovieDownloader(url)
-    downloader.loadMovie()
-    result = 'successfully downloaded movie '
-    result = result + downloader.folder
+    result = downloader.loadMovie()
+    if(result == True):
+        result = 'Successfully downloaded movie ' 
+        result = result + downloader.folder
     return jsonify({'result': result})  
 
 if __name__ == '__main__':
