@@ -6,6 +6,8 @@ import json
 import argparse
 from urllib.parse import urlparse
 import logging
+import re
+
 
 class AudioDownloader:
     logging.basicConfig(format='AudioDownloader:%(levelname)s:%(message)s', level=logging.INFO)
@@ -22,22 +24,53 @@ class AudioDownloader:
 
     # args = parser.parse_args()
 
+    id = None
     experimentalShow = False
     dryRun = False
     url = ''
     path = ''
     folder = ''
 
-    def __init__(self, uri):
+    def __init__(self, uri, id, progress_map, progress_lock):
         parsed_uri = urlparse(uri)
         self.url = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
         self.path = parsed_uri.path
+        self.id = id
+        self.progress_map = progress_map
+        self.progress_lock = progress_lock
 
     def loadShow(self):
         self.__loadEpisode(self.path, True)
+        with self.progress_lock:
+            if not self.dryRun:
+                self.progress_map[self.id] = {
+                    "status": "finished",
+                    "progress": "100",
+                    "message": f"Download complete: {self.id}"
+                }
+            else:
+                self.progress_map[self.id] = {
+                    "status": "finished",
+                    "progress": "100",
+                    "message": f"Dry run complete: {self.id}"
+                }
+
 
     def loadEpisode(self):
         self.__loadEpisode(self.path, False)
+        with self.progress_lock:
+            if not self.dryRun:
+                self.progress_map[self.id] = {
+                    "status": "finished",
+                    "progress": "100",
+                    "message": f"Download complete: {self.id}"
+                }
+            else:
+                self.progress_map[self.id] = {
+                    "status": "finished",
+                    "progress": "100",
+                    "message": f"Dry run complete: {self.id}"
+                }
 
     def __loadEpisode(self, path, recursive):
         url = self.url
@@ -151,7 +184,48 @@ class AudioDownloader:
         
         # download episode
         if not self.dryRun:
-            wget.download(link, filename)
+            actual_filename = wget.download(link, out=filename, bar=self.wget_progress_bar)
+            logging.info(f"Download finished: {filename}")
+
+
+    def wget_progress_bar(self, current, total, width):
+        """
+        A progress bar callback function compatible with wget.download().
+        This adapts the information to fit your progress_hook's structure.
+        """
+        with self.progress_lock:
+            percent = f"{current * 100 / total:.2f}%" if total > 0 else "0.00%"
+            message = f"{current}/{total} bytes"
+
+            # Simulate some of the information you might get from a yt-dlp like hook
+            # For wget, we don't have direct access to speed or ETA easily within this callback,
+            # so we'll just show the percentage and bytes.
+            d = {
+                'status': 'downloading',
+                '_percent_str': percent,
+                '_total_bytes': total,
+                '_downloaded_bytes': current,
+                '_speed_str': 'N/A', # wget's bar doesn't provide this directly
+                '_eta_str': 'N/A'   # wget's bar doesn't provide this directly
+            }
+
+            clean_percent = self.__strip_ansi(d.get('_percent_str', '').strip())
+            logging.debug(f"Raw percentage string: {clean_percent}")
+            self.progress_map[self.id] = {
+                "status": "downloading",
+                "progress": clean_percent,
+                "message": f"{d['_percent_str']} downloaded ({message})"
+            }
+        logging.debug(f"Progress map updated: {self.progress_map}")
+
+    def __strip_ansi(self, percent_str):
+         # Remove ANSI codes
+        no_ansi = re.sub(r'\x1b\[[0-9;]*m', '', percent_str)
+        # Extract decimal number followed by %
+        match = re.search(r'(\d{1,3}(?:\.\d+)?)%', no_ansi)
+        if match:
+            return float(match.group(1))
+        return 0.0
 
     def __getFilename(self, filename):
         filename = filename.replace('"','')

@@ -22,6 +22,7 @@
       });
     }
   </script>
+
   <title>Open Audiothek Downloader</title>
 </head>
 <body>
@@ -37,6 +38,7 @@
             <button type="submit" id="download-show">Download Show</button>
             <button type="submit" id="download-episode">Download Episode</button>
             <button type="submit" id="download-movie">Download Movie</button>
+            <div id="progress-area"></div>
             <p id="result"><br></p>
         </div>
     </div>
@@ -62,13 +64,56 @@
 </script>
 
 <script>
+  const resultBox = document.getElementById("result");
+  const progressArea = document.getElementById("progress-area");
+
+  function createProgressBar(taskId) {
+    const wrapper = document.createElement("div");
+    wrapper.id = `task-${taskId}`;
+    wrapper.innerHTML = `
+      <progress id="bar-${taskId}" value="0" max="100"></progress>
+      <span id="msg-${taskId}">Starting...</span>
+    `;
+    progressArea.appendChild(wrapper);
+  }
+
+  function pollProgress(taskId) {
+    const bar = document.getElementById(`bar-${taskId}`);
+    const msg = document.getElementById(`msg-${taskId}`);
+    const interval = setInterval(() => {
+      fetch(`/progress/${taskId}`)
+        .then(res => res.json())
+        .then(data => {
+          msg.innerText = data.progress + '%' || '';
+          let raw = parseFloat(data.progress);
+          bar.value = !isNaN(raw) ? raw : 0;
+          if (data.status === 'finished' || data.status === 'error') {
+            afterProgress();
+            clearInterval(interval);
+          }
+        })
+        .catch(() => {
+          msg.innerText = "Error polling progress";
+          afterProgress();
+          clearInterval(interval);
+        });
+    }, 1000);
+    function afterProgress() {
+      // remove progress bar after 5 seconds
+      setTimeout(() => {
+        progressArea.removeChild(document.getElementById(`task-${taskId}`));
+      }, 5000);
+    }
+    
+  }
+
+  // Function to handle the download button click
   const downloadShowBtn = document.getElementById("download-show");
   const downloadEpisodeBtn = document.getElementById("download-episode");
   const downloadMovieBtn = document.getElementById("download-movie");
   const urlInput = document.getElementById("url");
 
   const postUrl = async (path) => {
-    document.getElementById("result").innerText = "loading...";
     let value = document.getElementById("url").value;
     let myBody = {"textfield": document.getElementById("url").value};
 
@@ -79,15 +124,16 @@
       headers: {
         'Content-Type': 'application/json'
       }
-    }).then ((response) => {
-      // extract json from response
-      return response.json();
-    }).then ((response) => {
-      // show response
-      document.getElementById("result").innerText = response["result"];
-      document.getElementById("url").value = '';
-    }).catch((error) => {
-      document.getElementById("result").innerText = "Server not reachable";
+    }).then(res => res.json())
+    .then(data => {
+      if (data.task_id) {
+        createProgressBar(data.task_id);
+        pollProgress(data.task_id);
+      }
+      urlInput.value = "";
+    })
+    .catch(err => {
+      resultBox.innerText = "Server error.";
     });
   }
 
@@ -95,13 +141,14 @@
   downloadShowBtn.addEventListener("click", () => {postUrl('download-show')});
   downloadEpisodeBtn.addEventListener("click", () => {postUrl('download-episode')});
   downloadMovieBtn.addEventListener("click", () => {postUrl('download-movie')});
-  urlInput.addEventListener("keydown",
-  function(event) {
-    if (event.key === 'Enter') {
-        postUrl();
-    }
-  });
+  //urlInput.addEventListener("keydown",
+  //function(event) {
+  //  if (event.key === 'Enter') {
+  //      postUrl();
+  //  }
+  //});
 
+  // add sharehandler function
   const url = new URL(document.location);
   const sharedLink = url.searchParams.get("link");
   let description = url.searchParams.get("description");
