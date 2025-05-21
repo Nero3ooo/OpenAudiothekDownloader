@@ -12,23 +12,8 @@ import re
 class MovieDownloader:
     logging.basicConfig(format='MovieDownloader:%(levelname)s:%(message)s', level=logging.INFO)
 
-    # Instantiate the parser
-    # parser = argparse.ArgumentParser(description='Downloader for ARD Audiothek Audiobooks')
-
-    # Required positional argument
-    # parser.add_argument('url', type=str,
-    #                    help='Url of first episode')
-
-    # parser.add_argument('--experimentalShow', action=argparse.BooleanOptionalAction, help='If you want to download bigger shows, you can try this. There may be duplicates.')
-    # parser.add_argument('--dryRun', action=argparse.BooleanOptionalAction, help='If you just want to list what will be downloaded and where it will be stored.')
-
-    # args = parser.parse_args()
-
     id = None
-    experimentalShow = False
-    dryRun = False
     url = ''
-    path = ''
     folder = '/movies'
 
     def __init__(self, uri, id, progress_map, progress_lock):
