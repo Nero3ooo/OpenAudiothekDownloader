@@ -68,19 +68,13 @@ def downloadMovie():
         return jsonify({'result': result})
     # Run the terminal command
     downloader = MovieDownloader(url,str(uuid4()),progress_map, progress_lock)
-    #result = downloader.loadMovie()
-    #task_id = str(uuid4())
     with progress_lock:
         progress_map[downloader.id] = {"status": "starting", "progress": 0, "message": "Starting download..."}
     
         logging.info(progress_map.get(downloader.id, {"status": "unknown", "progress": 0, "message": "Invalid task ID"}))
     threading.Thread(target=downloader.loadMovie, args=(), daemon=True).start()
     logging.info(f"Starting download for {downloader.id}")
-    return jsonify({"result": "Download started.", "task_id": downloader.id})
-    #if(result == True):
-    #    result = 'Successfully downloaded movie ' 
-    #    result = result + downloader.folder
-    #return jsonify({'result': result})  
+    return jsonify({"result": "Download started.", "task_id": downloader.id}) 
 
 @app.route("/progress/<task_id>", methods=["GET"])
 def get_progress(task_id):
