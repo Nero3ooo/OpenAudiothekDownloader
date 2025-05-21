@@ -89,5 +89,16 @@ def get_progress(task_id):
         logging.info(progress_map.get(task_id, {"status": "unknown", "progress": 0, "message": "Invalid task ID"})) 
         return jsonify(progress_map.get(task_id, {"status": "unknown", "progress": 0, "message": "Invalid task ID"}))
 
+@app.route('/active-tasks')
+def active_tasks():
+    with progress_lock:
+        # Only return tasks that are not finished or errored
+        active = [
+            {"task_id": tid, **info}
+            for tid, info in progress_map.items()
+            if info.get("status") not in ("finished", "error")
+        ]
+    return jsonify({"tasks": active})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -172,6 +172,17 @@
     document.getElementById("result").innerText = "Invalid URL";
   }
 
+  window.addEventListener('DOMContentLoaded', () => {
+    // Fetch and show all active tasks
+    fetch('/active-tasks')
+      .then(res => res.json())
+      .then(data => {
+        (data.tasks || []).forEach(task => {
+          createProgressBar(task.task_id);
+          pollProgress(task.task_id);
+        });
+      });
+  });
 
 </script>
 
