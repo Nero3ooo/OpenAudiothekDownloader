@@ -31,16 +31,20 @@ class AudioDownloader:
     path = ''
     folder = ''
 
-    def __init__(self, uri, id, progress_map, progress_lock):
-        parsed_uri = urlparse(uri)
-        self.url = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
-        self.path = parsed_uri.path
+    def __init__(self, id, progress_map, progress_lock, recursive=False):
         self.id = id
         self.progress_map = progress_map
         self.progress_lock = progress_lock
+        self.recursive = recursive
 
-    def loadShow(self):
-        self.__loadEpisode(self.path, True)
+    def setUrl(self, url):
+        logging.info(f"Setting URL: {url}")
+        parsed_uri = urlparse(url)
+        self.url = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+        self.path = parsed_uri.path
+
+    def download(self):
+        self.__loadEpisode(self.path)
         with self.progress_lock:
             if not self.dryRun:
                 self.progress_map[self.id] = {
@@ -55,26 +59,8 @@ class AudioDownloader:
                     "message": f"Dry run complete: {self.id}"
                 }
 
-
-    def loadEpisode(self):
-        self.__loadEpisode(self.path, False)
-        with self.progress_lock:
-            if not self.dryRun:
-                self.progress_map[self.id] = {
-                    "status": "finished",
-                    "progress": "100",
-                    "message": f"Download complete: {self.id}"
-                }
-            else:
-                self.progress_map[self.id] = {
-                    "status": "finished",
-                    "progress": "100",
-                    "message": f"Dry run complete: {self.id}"
-                }
-
-    def __loadEpisode(self, path, recursive):
+    def __loadEpisode(self, path):
         url = self.url
-
         if not self.experimentalShow:
             r = requests.get(url+path)
             logging.debug(url+path)
@@ -93,8 +79,8 @@ class AudioDownloader:
                 next_episode = data['item']['nextEpisode']
                 logging.debug(json.dumps(next_episode, indent=4))
 
-                if (not next_episode is None and recursive):
-                    self.__loadEpisode(next_episode['path'], recursive)
+                if (not next_episode is None and self.recursive):
+                    self.__loadEpisode(next_episode['path'])
             
             # load from series site, does not work for the whole series
             else:

@@ -16,14 +16,16 @@ class MovieDownloader:
     url = ''
     folder = '/movies'
 
-    def __init__(self, uri, id, progress_map, progress_lock):
-        logging.info(f"Initializing MovieDownloader with URI: {uri}")
-        self.url = uri
+    def __init__(self, id, progress_map, progress_lock):
         self.id = id
         self.progress_map = progress_map
         self.progress_lock = progress_lock
 
-    def loadMovie(self):
+    def setUrl(self, url):
+        logging.info(f"Setting URL: {url}")
+        self.url = url
+
+    def download(self):
         logging.info(f"Loading movie from {self.url}")
         os.makedirs(self.folder, exist_ok=True)
 

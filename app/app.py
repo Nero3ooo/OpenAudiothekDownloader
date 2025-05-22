@@ -35,46 +35,34 @@ def index(path):
 
 @app.route('/download-show', methods=['POST'])
 def downloadShow():
-    url = json.loads(request.data)
-    url = url['textfield']
-    if(url == ''):
-        result = 'no url'
-        return jsonify({'result': result})
-    downloader = AudioDownloader(url, str(uuid4()),progress_map, progress_lock)
-    with progress_lock:
-        progress_map[downloader.id] = {"status": "starting", "progress": 0, "message": "Starting download..."}
-    threading.Thread(target=downloader.loadShow, args=(), daemon=True).start()
-    return jsonify({"result": "Download started.", "task_id": downloader.id})
+    downloader = AudioDownloader(str(uuid4()),progress_map, progress_lock, recursive=True)
+    return __download_with_threading(downloader)
+    # threading.Thread(target=downloader.loadShow, args=(), daemon=True).start()
 
 @app.route('/download-episode', methods=['POST'])
 def downloadEpisode():
-    url = json.loads(request.data)
-    url = url['textfield']
-    if(url == ''):
-        result = 'no url'
-        return jsonify({'result': result})
-    downloader = AudioDownloader(url, str(uuid4()),progress_map, progress_lock)
-    with progress_lock:
-        progress_map[downloader.id] = {"status": "starting", "progress": 0, "message": "Starting download..."}
-    threading.Thread(target=downloader.loadEpisode, args=(), daemon=True).start()
-    return jsonify({"result": "Download started.", "task_id": downloader.id})
+    downloader = AudioDownloader(str(uuid4()),progress_map, progress_lock)
+    return __download_with_threading(downloader)
+    # threading.Thread(target=downloader.loadEpisode, args=(), daemon=True).start()
+    
 
 @app.route('/download-movie', methods=['POST'])
 def downloadMovie():
+    downloader = MovieDownloader(str(uuid4()),progress_map, progress_lock)
+    return __download_with_threading(downloader)
+    # threading.Thread(target=downloader.loadMovie, args=(), daemon=True).start()
+
+def __download_with_threading(downloader):
     url = json.loads(request.data)
     url = url['textfield']
     if(url == ''):
         result = 'no url'
         return jsonify({'result': result})
-    # Run the terminal command
-    downloader = MovieDownloader(url,str(uuid4()),progress_map, progress_lock)
+    downloader.setUrl(url)
     with progress_lock:
         progress_map[downloader.id] = {"status": "starting", "progress": 0, "message": "Starting download..."}
-    
-        logging.info(progress_map.get(downloader.id, {"status": "unknown", "progress": 0, "message": "Invalid task ID"}))
-    threading.Thread(target=downloader.loadMovie, args=(), daemon=True).start()
-    logging.info(f"Starting download for {downloader.id}")
-    return jsonify({"result": "Download started.", "task_id": downloader.id}) 
+    threading.Thread(target=downloader.download, args=(), daemon=True).start()
+    return jsonify({"result": "Download started.", "task_id": downloader.id})
 
 @app.route("/progress/<task_id>", methods=["GET"])
 def get_progress(task_id):
