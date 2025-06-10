@@ -64,6 +64,12 @@ class MovieDownloader:
             return True
         except Exception as e:
             logging.error(f"Error downloading movie: {str(e)}")
+            with self.progress_lock:
+                self.progress_map[self.id] = {
+                    "status": "error",
+                    "progress": 0,
+                    "message": f"Download error: {str(e)}"
+                }
             return f"Download error: {e}"
     
     def __strip_ansi(self, percent_str):

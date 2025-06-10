@@ -87,7 +87,11 @@
           msg.innerText = data.progress + '%' || '';
           let raw = parseFloat(data.progress);
           bar.value = !isNaN(raw) ? raw : 0;
-          if (data.status === 'finished' || data.status === 'error') {
+          if (data.status === 'finished') {
+            afterProgress();
+            clearInterval(interval);
+          } else if (data.status === 'error') {
+            msg.innerText = data.message;
             afterProgress();
             clearInterval(interval);
           }
