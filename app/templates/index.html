@@ -71,8 +71,12 @@
     const wrapper = document.createElement("div");
     wrapper.id = `task-${taskId}`;
     wrapper.innerHTML = `
-      <progress id="bar-${taskId}" value="0" max="100"></progress>
-      <span id="msg-${taskId}">Starting...</span>
+      <div class="progress-bar">
+        <progress id="bar-${taskId}" value="0" max="100"></progress>
+      </div>
+      <div class="progress-message">
+        <span id="msg-${taskId}">Starting...</span>
+      </div>
     `;
     progressArea.appendChild(wrapper);
   }
@@ -84,7 +88,7 @@
       fetch(`/progress/${taskId}`)
         .then(res => res.json())
         .then(data => {
-          msg.innerText = data.progress + '%' || '';
+          msg.innerText =  parseFloat(data.progress).toFixed(1) + '%' || '';
           let raw = parseFloat(data.progress);
           bar.value = !isNaN(raw) ? raw : 0;
           if (data.status === 'finished') {

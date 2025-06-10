@@ -125,3 +125,13 @@ body {
   .icon.moon {
     color: #2980b9;
   }
+  .progress-bar {
+    display: inline-block;
+    width: 50%;
+    align-content: right;
+  }
+  .progress-message {
+    display: inline-block;
+    width: 4em;
+    text-align: right;
+  }
