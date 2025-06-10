@@ -56,31 +56,17 @@ class MovieDownloader:
         }
         if(self.url.startswith('https://www.arte.tv/')):
             formats = [
-             'VA-STA-3103',
+             'VA-STA-3103'
              'VA-STA-2307', 
              'VA-STA-2190',
              'VA-STA-2197', 
              'VA-STA-1614', 
              'VA-STA-919', 
              'VA-STA-424',
-             'VA-STA-audio_0-Deutsch'
             ]
             with YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(self.url, download=False)
-            if 'formats' in info:
-                # Check if the desired formats are available
-                available_formats = [f['format_id'] for f in info['formats']]
-                ydl_opts['format'] = None
-                # use best available format using loop
-                for fmt in formats:
-                    if fmt in available_formats:
-                        ydl_opts['format'] = fmt
-                        logging.info(f"Using format: {fmt}")
-                        break
-
-                # use last available format
-                if ydl_opts['format'] is None:
-                    ydl_opts['format'] = available_formats[-1]
+            # dont use format just use ffmpeg to download the video
   
         else:
             ydl_opts['format'] = 'best'
