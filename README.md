@@ -65,7 +65,7 @@ docker compose down
 ## Nutzung
 
 ![alt text](./images/webfrontend.png)
-### Download Show
+### Download Show (Nur Audiothek)
 Link der ersten Folge einfügen.
 
 Die ausgewählte und kommende Folgen werden in das Verzeichnis heruntergeladen, welches in der compose.yml definiert wurde. 
@@ -73,7 +73,7 @@ Die ausgewählte und kommende Folgen werden in das Verzeichnis heruntergeladen, 
 Alternativ Link der Serienübersicht einfügen und herunterladen.
 Hierbei werden allerdings häufig nicht alle Folgen erfasst und heruntergeladen.
 
-### Download Episode
+### Download Episode (Nur Audiothek)
 
 Nur die Episode dessen Link eingefügt wurde, wird heruntergeladen.
 
