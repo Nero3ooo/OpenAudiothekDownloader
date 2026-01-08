@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -5,9 +9,17 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
+    padding: 10px;
     transition: background-color 0.3s, color 0.3s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body.modal-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
 }
 .dark-mode {
     background-color: #333;
@@ -15,12 +27,15 @@ body {
 }
 .container {
     min-width: 18em;
+    max-width: 500px;
+    width: 100%;
     background-color: #fff;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
     transition: background-color 0.3s, color 0.3s;
+    box-sizing: border-box;
 }
 .dark-mode .container {
     background-color: #444;
@@ -146,19 +161,22 @@ body {
   }
 
   .settings-icon {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 28px;
     cursor: pointer;
     color: #666;
     transition: color 0.3s, transform 0.3s;
     user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
-  .settings-icon:hover {
+  .settings-icon:hover,
+  .settings-icon:active {
     color: #007bff;
     transform: rotate(90deg);
   }
@@ -182,17 +200,29 @@ body {
     height: 100%;
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.5);
+    -webkit-overflow-scrolling: touch;
   }
 
   .modal-content {
     background-color: #fff;
-    margin: 5% auto;
+    margin: 10% auto;
     padding: 0;
     border-radius: 8px;
     width: 90%;
     max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     animation: slideDown 0.3s ease-out;
+    position: relative;
+  }
+
+  @media (max-width: 600px) {
+    .modal-content {
+      margin: 5% auto;
+      width: 95%;
+      max-height: 90vh;
+    }
   }
 
   .dark-mode .modal-content {

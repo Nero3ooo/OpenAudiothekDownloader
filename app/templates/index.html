@@ -51,11 +51,19 @@
         <p><strong>How to get cookies from your browser:</strong></p>
         <ol>
           <li>Log in to <a href="https://www.ardmediathek.de" target="_blank">ardmediathek.de</a></li>
+          <li><strong>IMPORTANT:</strong> Visit <a href="https://sso.ardmediathek.de/sso" target="_blank">sso.ardmediathek.de/sso</a> to ensure SSO cookies are set</li>
           <li>Open Developer Tools (F12)</li>
           <li>Go to "Application" or "Storage" tab</li>
-          <li>Click on "Cookies" and select "ardmediathek.de"</li>
-          <li>Copy all cookie values in format: <code>name=value; name2=value2</code></li>
+          <li>Click on "Cookies" and check BOTH domains:
+            <ul>
+              <li><code>https://www.ardmediathek.de</code></li>
+              <li><code>https://sso.ardmediathek.de</code></li>
+            </ul>
+          </li>
+          <li>Copy ALL cookies from BOTH domains in format: <code>name=value; name2=value2</code></li>
+          <li>Required cookies: <code>ams</code>, <code>amsLoggedIn</code>, <code>amsLoggedInId</code>, <code>clientID</code></li>
         </ol>
+        <p><small><strong>Tip:</strong> You need cookies from the SSO domain for age verification to work!</small></p>
       </div>
       <textarea id="cookie-input" placeholder="Paste cookies here (format: name=value; name2=value2)" rows="5"></textarea>
       <div class="cookie-buttons">
@@ -237,18 +245,42 @@
   const settingsIcon = document.getElementById('settings-icon');
   const closeBtn = document.querySelector('.close');
 
-  settingsIcon.addEventListener('click', () => {
+  function openModal() {
     modal.style.display = 'block';
+    document.body.classList.add('modal-open');
     updateCookieStatus();
-  });
+  }
 
-  closeBtn.addEventListener('click', () => {
+  function closeModal() {
     modal.style.display = 'none';
+    document.body.classList.remove('modal-open');
+  }
+
+  settingsIcon.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openModal();
   });
 
-  window.addEventListener('click', (event) => {
+  settingsIcon.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openModal();
+  }, { passive: false });
+
+  closeBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    closeModal();
+  });
+
+  closeBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    closeModal();
+  }, { passive: false });
+
+  modal.addEventListener('click', (event) => {
     if (event.target === modal) {
-      modal.style.display = 'none';
+      closeModal();
     }
   });
 

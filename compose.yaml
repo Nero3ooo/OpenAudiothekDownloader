@@ -14,3 +14,5 @@ services:
       # Uncomment the following lines for Linux users
       - /media/pool/audiobookshelf/audiobooks:/audiobooks
       - /media/pool/jellyfin/Movies:/movies
+      # App data volume for cookies and configuration (persists across container restarts)
+      - ./app_data:/app/data

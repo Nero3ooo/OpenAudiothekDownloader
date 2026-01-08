@@ -57,14 +57,25 @@ class MovieDownloader:
         }
 
         # Add cookies if available
+        cookie_file_path = None
         if self.cookie_manager and self.cookie_manager.has_cookies():
-            cookies_dict = self.cookie_manager.get_cookies_dict()
-            # Convert cookies to Netscape format for yt-dlp
-            cookie_header = self.cookie_manager.get_cookie_header()
-            ydl_opts['http_headers'] = {
-                'Cookie': cookie_header
-            }
-            logging.info(f"Using {len(cookies_dict)} cookies for download")
+            # Create Netscape format cookie file for yt-dlp
+            cookie_file_path = self.cookie_manager.create_netscape_cookie_file('cookies.txt')
+            if cookie_file_path:
+                ydl_opts['cookiefile'] = cookie_file_path
+                cookies_dict = self.cookie_manager.get_cookies_dict()
+                logging.info(f"Using {len(cookies_dict)} cookies from {cookie_file_path} for download")
+                logging.info(f"Cookie names: {list(cookies_dict.keys())}")
+
+                # Read and log the cookie file content for debugging
+                try:
+                    with open(cookie_file_path, 'r') as f:
+                        cookie_content = f.read()
+                        logging.info(f"Generated cookie file content:\n{cookie_content}")
+                except Exception as e:
+                    logging.warning(f"Could not read cookie file for debugging: {e}")
+            else:
+                logging.warning("Failed to create cookie file, proceeding without authentication")
 
         if(self.url.startswith('https://www.arte.tv/')):
             formats = [
@@ -98,6 +109,14 @@ class MovieDownloader:
                     "message": f"Download error: {str(e)}"
                 }
             return f"Download error: {e}"
+        finally:
+            # Clean up temporary cookie file if it was created
+            if cookie_file_path and os.path.exists(cookie_file_path):
+                try:
+                    os.remove(cookie_file_path)
+                    logging.info(f"Cleaned up cookie file: {cookie_file_path}")
+                except Exception as e:
+                    logging.warning(f"Failed to clean up cookie file: {e}")
     
     def __strip_ansi(self, percent_str):
          # Remove ANSI codes
