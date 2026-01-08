@@ -16,10 +16,11 @@ class MovieDownloader:
     url = ''
     folder = '/movies'
 
-    def __init__(self, id, progress_map, progress_lock):
+    def __init__(self, id, progress_map, progress_lock, cookie_manager=None):
         self.id = id
         self.progress_map = progress_map
         self.progress_lock = progress_lock
+        self.cookie_manager = cookie_manager
 
     def setUrl(self, url):
         logging.info(f"Setting URL: {url}")
@@ -54,6 +55,17 @@ class MovieDownloader:
             'outtmpl': os.path.join(self.folder, '%(title)s.%(ext)s'),
             'progress_hooks': [progress_hook]
         }
+
+        # Add cookies if available
+        if self.cookie_manager and self.cookie_manager.has_cookies():
+            cookies_dict = self.cookie_manager.get_cookies_dict()
+            # Convert cookies to Netscape format for yt-dlp
+            cookie_header = self.cookie_manager.get_cookie_header()
+            ydl_opts['http_headers'] = {
+                'Cookie': cookie_header
+            }
+            logging.info(f"Using {len(cookies_dict)} cookies for download")
+
         if(self.url.startswith('https://www.arte.tv/')):
             formats = [
              'VA-STA-3103'

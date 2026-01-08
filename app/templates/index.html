@@ -31,13 +31,50 @@
   <div class="toggle" id="toggle"></div>
 </div>
 
+<div class="settings-icon-container">
+  <div id="settings-icon" class="settings-icon">⚙</div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settings-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Cookie Settings</h2>
+      <span class="close">&times;</span>
+    </div>
+    <div class="modal-body">
+      <p class="cookie-info">To download age-restricted content, you need to provide cookies from your logged-in ARD session.</p>
+      <div class="cookie-status">
+        <span id="cookie-status">Checking cookies...</span>
+      </div>
+      <div class="cookie-help">
+        <p><strong>How to get cookies from your browser:</strong></p>
+        <ol>
+          <li>Log in to <a href="https://www.ardmediathek.de" target="_blank">ardmediathek.de</a></li>
+          <li>Open Developer Tools (F12)</li>
+          <li>Go to "Application" or "Storage" tab</li>
+          <li>Click on "Cookies" and select "ardmediathek.de"</li>
+          <li>Copy all cookie values in format: <code>name=value; name2=value2</code></li>
+        </ol>
+      </div>
+      <textarea id="cookie-input" placeholder="Paste cookies here (format: name=value; name2=value2)" rows="5"></textarea>
+      <div class="cookie-buttons">
+        <button type="button" id="save-cookies">Save Cookies</button>
+        <button type="button" id="clear-cookies">Clear Cookies</button>
+      </div>
+      <p id="cookie-result"></p>
+    </div>
+  </div>
+</div>
+
     <div class="container">
         <h1>OpenAudiothek Downloader</h1>
         <div class="form">
             <input type="text" id="url" placeholder="Shared Url"/>
-            <button type="submit" id="download-show">Download Show</button>
-            <button type="submit" id="download-episode">Download Episode</button>
-            <button type="submit" id="download-movie">Download Movie</button>
+            <button type="submit" id="download-show">Download Audio Show</button>
+            <button type="submit" id="download-episode">Download Audio Episode</button>
+            <button type="submit" id="download-movie">Download Video Movie</button>
+            
             <div id="progress-area"></div>
             <p id="result"><br></p>
         </div>
@@ -189,6 +226,102 @@
           createProgressBar(task.task_id);
           pollProgress(task.task_id);
         });
+      });
+
+    // Load cookie status
+    updateCookieStatus();
+  });
+
+  // Modal functionality
+  const modal = document.getElementById('settings-modal');
+  const settingsIcon = document.getElementById('settings-icon');
+  const closeBtn = document.querySelector('.close');
+
+  settingsIcon.addEventListener('click', () => {
+    modal.style.display = 'block';
+    updateCookieStatus();
+  });
+
+  closeBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+
+  window.addEventListener('click', (event) => {
+    if (event.target === modal) {
+      modal.style.display = 'none';
+    }
+  });
+
+  // Cookie management functions
+  function updateCookieStatus() {
+    fetch('/cookies/info')
+      .then(res => res.json())
+      .then(data => {
+        const statusEl = document.getElementById('cookie-status');
+        if (data.has_cookies) {
+          statusEl.innerText = `✓ ${data.count} cookies stored`;
+          statusEl.style.color = 'green';
+        } else {
+          statusEl.innerText = '✗ No cookies stored';
+          statusEl.style.color = 'orange';
+        }
+      })
+      .catch(err => {
+        document.getElementById('cookie-status').innerText = 'Error checking cookies';
+      });
+  }
+
+  document.getElementById('save-cookies').addEventListener('click', () => {
+    const cookieInput = document.getElementById('cookie-input');
+    const cookieResult = document.getElementById('cookie-result');
+    const cookies = cookieInput.value.trim();
+
+    if (!cookies) {
+      cookieResult.innerText = 'Please enter cookies';
+      cookieResult.style.color = 'red';
+      return;
+    }
+
+    fetch('/cookies/set', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cookies: cookies })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        cookieResult.innerText = data.message;
+        cookieResult.style.color = 'green';
+        cookieInput.value = '';
+        updateCookieStatus();
+      } else {
+        cookieResult.innerText = data.message;
+        cookieResult.style.color = 'red';
+      }
+    })
+    .catch(err => {
+      cookieResult.innerText = 'Error saving cookies';
+      cookieResult.style.color = 'red';
+    });
+  });
+
+  document.getElementById('clear-cookies').addEventListener('click', () => {
+    if (!confirm('Are you sure you want to clear all stored cookies?')) {
+      return;
+    }
+
+    fetch('/cookies/clear', {
+      method: 'POST'
+    })
+    .then(res => res.json())
+    .then(data => {
+      const cookieResult = document.getElementById('cookie-result');
+      cookieResult.innerText = data.message;
+      cookieResult.style.color = 'green';
+      updateCookieStatus();
+    })
+    .catch(err => {
+      document.getElementById('cookie-result').innerText = 'Error clearing cookies';
       });
   });
 

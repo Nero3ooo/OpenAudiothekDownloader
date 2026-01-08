@@ -6,6 +6,7 @@ import subprocess
 import requests
 from audioDownloader import AudioDownloader
 from movieDownloader import MovieDownloader
+from cookieManager import CookieManager
 import threading
 from uuid import uuid4
 
@@ -17,6 +18,9 @@ app = Flask(__name__, static_folder='static', static_url_path="/static")
 # Global task progress map
 progress_map = {}
 progress_lock = threading.Lock()
+
+# Global cookie manager
+cookie_manager = CookieManager()
 
 @app.route('/manifest.json')
 def serve_manifest():
@@ -48,7 +52,7 @@ def downloadEpisode():
 
 @app.route('/download-movie', methods=['POST'])
 def downloadMovie():
-    downloader = MovieDownloader(str(uuid4()),progress_map, progress_lock)
+    downloader = MovieDownloader(str(uuid4()),progress_map, progress_lock, cookie_manager=cookie_manager)
     return __download_with_threading(downloader)
     # threading.Thread(target=downloader.loadMovie, args=(), daemon=True).start()
 
@@ -81,6 +85,39 @@ def active_tasks():
             if info.get("status") not in ("finished", "error")
         ]
     return jsonify({"tasks": active})
+
+@app.route('/cookies/info', methods=['GET'])
+def get_cookie_info():
+    """Get information about stored cookies"""
+    info = cookie_manager.get_cookie_info()
+    return jsonify(info)
+
+@app.route('/cookies/set', methods=['POST'])
+def set_cookies():
+    """Set cookies from browser string"""
+    data = json.loads(request.data)
+    cookie_string = data.get('cookies', '')
+
+    if not cookie_string:
+        return jsonify({'success': False, 'message': 'No cookies provided'}), 400
+
+    success = cookie_manager.set_cookies_from_string(cookie_string)
+
+    if success:
+        info = cookie_manager.get_cookie_info()
+        return jsonify({
+            'success': True,
+            'message': f'Successfully saved {info["count"]} cookies',
+            'info': info
+        })
+    else:
+        return jsonify({'success': False, 'message': 'Failed to parse cookies'}), 400
+
+@app.route('/cookies/clear', methods=['POST'])
+def clear_cookies():
+    """Clear all stored cookies"""
+    cookie_manager.clear_cookies()
+    return jsonify({'success': True, 'message': 'Cookies cleared'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
